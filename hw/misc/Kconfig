@@ -258,3 +258,4 @@ config XLNX_ZYNQ_DDRC
     bool
 
 source macio/Kconfig
+source experiments/Kconfig

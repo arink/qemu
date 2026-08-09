@@ -3,6 +3,8 @@
 #include "qemu/units.h"
 #include "hw/pci/pci.h"
 #include "hw/pci/msi.h"
+#include "hw/misc/testdevice.h"
+#include "qapi/error.h"
 
 #define TYPE_PCI_EXPERIMENT_DEVICE "experiment"
 typedef struct ExperimentState ExperimentState;
@@ -12,6 +14,8 @@ DECLARE_INSTANCE_CHECKER(ExperimentState, EXPERIMENT,
 struct ExperimentState {
     PCIDevice pdev;
     MemoryRegion mmio;
+
+    TestMiscState *testdev;
 };
 
 static uint64_t experiment_mmio_read(void *opaque, hwaddr addr, unsigned size)
@@ -86,6 +90,19 @@ static void pci_experiment_realize(PCIDevice *pdev, Error **errp)
                     experiment,
                     "experiment-mmio", 1 * MiB);
     pci_register_bar(pdev, 0, PCI_BASE_ADDRESS_SPACE_MEMORY, &experiment->mmio);
+
+    DeviceState *dev = qdev_new(TYPE_TESTDEVICE);
+    if (!dev) {
+        qemu_log_mask(LOG_GUEST_ERROR, "couldn't create testdevice\n");
+        exit(1);
+    }
+    qemu_log_mask(LOG_GUEST_ERROR, "Created testdevice\n");
+
+    object_property_add_child(OBJECT(pdev), "testdevice", OBJECT(dev));
+    sysbus_realize(SYS_BUS_DEVICE(dev), &error_abort);
+
+    experiment->testdev = (TestMiscState*) dev;
+    memory_region_add_subregion(&experiment->mmio, 0x1000, &experiment->testdev->iomem);
 }
 
 static void pci_experiment_uninit(PCIDevice *pdev)

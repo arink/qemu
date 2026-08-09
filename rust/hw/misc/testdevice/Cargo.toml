@@ -1,0 +1,23 @@
+[package]
+name = "testdevice"
+version = "0.1.0"
+authors = ["The QEMU Project Developers <qemu-devel@nongnu.org>"]
+description = "A basic QEMU misc device with two registers, written in Rust"
+
+edition.workspace = true
+homepage.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+common = { path = "../../../common" }
+util = { path = "../../../util" }
+migration = { path = "../../../migration" }
+bql = { path = "../../../bql" }
+qom = { path = "../../../qom" }
+system = { path = "../../../system" }
+hwcore = { path = "../../../hw/core" }
+
+[lints]
+workspace = true

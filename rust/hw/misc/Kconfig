@@ -1,0 +1,3 @@
+config X_TESTDEVICE_RUST
+    bool
+    default y if HAVE_RUST
